@@ -55,8 +55,8 @@ const HomePage = () => {
         {/* Testimonials (Placeholder Content) */}
         <div style={{ marginBottom: '40px' }}>
           <h2 style={{ fontSize: '2rem', color: '#333', marginBottom: '10px' }}>What Our Users Say</h2>
-          <p style={{ color: '#666' }}>"MeetingCoord has simplified our scheduling process significantly. Highly recommend!" - Alex</p>
-          <p style={{ color: '#666' }}>"The best tool for coordinating meeting times across different time zones." - Sam</p>
+          <p style={{ color: '#666' }}>&quot;MeetingCoord has simplified our scheduling process significantly. Highly recommend!&quot; - Alex</p>
+          <p style={{ color: '#666' }}>&quot;The best tool for coordinating meeting times across different time zones.&quot; - Sam</p>
         </div>
 
         {/* Footer */}

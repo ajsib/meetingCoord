@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CSSProperties } from 'react';
 import styled from 'styled-components';
+import Link from 'next/link';
 
 const Header = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -10,7 +11,7 @@ const Header = () => {
 
   // Ref to the side panel element
   const sidePanelRef = useRef<HTMLDivElement>(null);
-  
+
   // Toggle the menu open state and calculate menu position
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -145,9 +146,9 @@ const Header = () => {
       </nav>
       <div ref={sidePanelRef} style={sidePanelStyle}>
         <div style={sidePanelContentStyle}>
-          <a href="/home/" style={sidePanelLinkStyle}>Home</a>
-          <a href="/" style={sidePanelLinkStyle}>Meetings</a>
-          <a href="/create" style={sidePanelLinkStyle}>Organize</a>
+          <Link href="/home/" style={sidePanelLinkStyle}>Home</Link>
+          <Link href="/" style={sidePanelLinkStyle}>Meetings</Link>
+          <Link href="/create" style={sidePanelLinkStyle}>Organize</Link>
         </div>
       </div>
     </header>
