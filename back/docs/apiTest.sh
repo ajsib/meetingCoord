@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Host
-HOST="http://localhost:3001"
+HOST="localhost:3001"
 
 # Create a new meeting
 echo "-------- Creating a new meeting --------"

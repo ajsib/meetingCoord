@@ -2,9 +2,29 @@ import React, { useState } from 'react';
 import Header from '../../components/Header';
 import "react-modern-calendar-datepicker/lib/DatePicker.css";
 import { Calendar } from "react-modern-calendar-datepicker";
+import Link from 'next/link';
+
+interface DateObject {
+  year: number;
+  month: number;
+  day: number;
+}
+
+interface MeetingDetails {
+  meetingName: string;
+  description: string;
+  coordinatorName: string;
+  coordinatorEmail: string;
+  proposedDates: {
+    from: DateObject | null;
+    to: DateObject | null;
+  };
+  meetingLink: string;
+}
 
 const CoordinateMeetingPage = () => {
-  const [meetingDetails, setMeetingDetails] = useState({
+  const [isError, setError] = useState(0);
+  const [meetingDetails, setMeetingDetails] = useState<MeetingDetails>({
     meetingName: '',
     description: '',
     coordinatorName: '',
@@ -32,9 +52,61 @@ const CoordinateMeetingPage = () => {
     setMeetingDetails({ ...meetingDetails, proposedDates });
   };
 
-  const handleSubmit = (event: { preventDefault: () => void; }) => {
+const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // window.location.href = '/meeting/';
+    if (!fieldsFilled() || !isDateRangeValid()) return;
+
+    const { meetingName, description, coordinatorName, coordinatorEmail, proposedDates } = meetingDetails;
+
+    // Check if proposedDates.from and proposedDates.to are not null
+    if (!proposedDates.from || !proposedDates.to) {
+        console.error('Invalid date range');
+        return; // or handle this case appropriately
+    }
+
+    // Prepare the data for the backend
+    const meetingData = {
+        meetingName,
+        description,
+        coordinator: {
+            name: coordinatorName,
+            email: coordinatorEmail,
+        },
+        proposedTimes: [
+            {
+                start: new Date(proposedDates.from.year, proposedDates.from.month - 1, proposedDates.from.day),
+                end: new Date(proposedDates.to.year, proposedDates.to.month - 1, proposedDates.to.day),
+            },
+        ],
+    };
+
+    try {
+      // Send a POST request to your backend
+      const response = await fetch('https://set-a-meet-0e5fe70129fc.herokuapp.com/api/meetings/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(meetingData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create meeting');
+      }
+
+      const result = await response.json();
+
+      if (result.link) {
+        console.log('Meeting created, link:', result.link);
+        //  Want to redirect to the meeting page? Use the following line instead:
+        window.location.href = `/meeting/${result.link}`;
+      } else {
+        throw new Error('Meeting link not received');
+      }
+    } catch (error) {
+      console.error('Error creating meeting:', error);
+      setError(1);
+    }
   };
 
   // Check if the selected dates are either todays date or in the future
@@ -95,19 +167,31 @@ const CoordinateMeetingPage = () => {
             />
           </div>
 
-          {!isDateRangeValid() ? (
+          {!fieldsFilled() ? (
+            <p style={{ color: 'red', textAlign: 'center' }}>Please fill in all fields</p>
+          ) : !isDateRangeValid() ? (
             <p style={{ color: 'red', textAlign: 'center' }}>Please select a valid meeting range</p>
-          ) :
-            !fieldsFilled() ? (
-                <p style={{ color: 'red', textAlign: 'center' }}>Please fill in all fields</p>
-            ) :
-          (
-            <button 
+          ) : meetingDetails.meetingLink ? (
+            <p style={{ color: 'green', textAlign: 'center' }}>Meeting created: {meetingDetails.meetingLink}</p>
+          ) : !isError ? (
+            <button
               type="submit"
-              style={{ padding: '10px 20px', fontSize: '1rem', color: 'white', backgroundColor: '#333', border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'block', margin: '10px auto' }}
+              style={{
+                padding: '10px 20px',
+                fontSize: '1rem',
+                color: 'white',
+                backgroundColor: '#333',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                display: 'block',
+                margin: '10px auto',
+              }}
             >
               Find a time to meet
             </button>
+          ) : (
+            <p style={{ color: 'red', textAlign: 'center' }}>Error creating meeting, please contact Aidan</p>
           )}
         </form>
       </div>
