@@ -4,21 +4,43 @@ import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
-interface MeetingDetails {
-  coordinator: {
-    name: string;
-    email: string;
-  };
-  meetingName: string;
-  description: string;
-  proposedTimes: Array<{ start: string; end: string; }>;
+interface Participant {
+  name: string;
+  email: string;
+}
+
+interface Availability {
+  _id: string;
+  meeting: string;
+  participant: Participant;
+  availableTimes: Array<{
+    start: string;
+    end: string;
+    _id: string;
+  }>;
+  createdAt: string;
 }
 
 interface UserAvailabilityEvent {
   title: string;
-  start: string | Date;
-  end: string | Date;
+  start: Date | string;
+  end: Date | string;
   color: string;
+}
+
+interface MeetingDetails {
+  _id: string;
+  link: string;
+  coordinator: Participant;
+  meetingName: string;
+  description: string;
+  proposedTimes: Array<{
+    start: string;
+    end: string;
+    _id: string;
+  }>;
+  availabilities: Array<Availability>;
+  createdAt: string;
 }
 
 
@@ -51,6 +73,32 @@ const MeetingDetailPage: React.FC = () => {
     calendarApi.unselect(); // Clear date selection
   };
 
+  const processAvailabilities = (availabilities: any[]) => {
+    return availabilities.map((availability: { availableTimes: any[]; participant: { name: any; }; }, index: any) => {
+      return availability.availableTimes.map((timeSlot: { start: string | number | Date; end: string | number | Date; }) => ({
+        title: availability.participant.name,
+        start: new Date(timeSlot.start).toISOString(),
+        end: new Date(timeSlot.end).toISOString(),
+        color: generateColor(index), // Function to generate a unique color
+      }));
+    }).flat();
+  };
+  
+  const generateColor = (index: number) => {
+    // Simple function to generate a unique color for each team member
+    const colors = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
+        '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+        '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A', 
+        '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+        '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC', 
+        '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+        '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680', 
+        '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+        '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3', 
+        '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
+    return colors[index % colors.length];
+  }
+
   useEffect(() => {
     if (meetingID && typeof meetingID === 'string') {
       fetch(`https://set-a-meet-0e5fe70129fc.herokuapp.com/api/meetings/${meetingID}`)
@@ -62,6 +110,8 @@ const MeetingDetailPage: React.FC = () => {
         })
         .then(data => {
           setMeetingDetails(data);
+          const processedAvailabilities = processAvailabilities(data.availabilities);
+          setUserAvailability(processedAvailabilities); 
           setLoading(false);
         })
         .catch(error => {
@@ -78,12 +128,45 @@ const MeetingDetailPage: React.FC = () => {
     });
   };
 
-  const handleSubmit = (event: { preventDefault: () => void; }) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Implement the logic to handle submission (e.g., send data to server)
-    setIsEditMode(false); // Exit edit mode after submission
-    // we want to submit the user availability to the backend here!
-    console.log('User Availability Submitted:', userDetails);
+    if (!meetingID || typeof meetingID !== 'string') return;
+  
+    // Prepare availability data
+    const availabilityData = {
+      participant: {
+        name: userDetails.name,
+        email: userDetails.email
+      },
+      availableTimes: userAvailability.map(avail => ({
+        start: new Date(avail.start).toISOString(),
+        end: new Date(avail.end).toISOString()
+      }))
+    };
+  
+    try {
+      const response = await fetch(`https://set-a-meet-0e5fe70129fc.herokuapp.com/api/availabilities/${meetingID}/availability`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(availabilityData),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error submitting availability: ${response.status}`);
+      }
+  
+      const result = await response.json();
+      console.log('Availability submitted:', result);
+  
+      // Reset states and exit edit mode after successful submission
+      setIsEditMode(false);
+      setUserAvailability([]);
+  
+    } catch (error) {
+      console.error('Error submitting availability:', error);
+    }
   };
 
   if (loading) return <p>Loading...</p>;
@@ -120,7 +203,15 @@ const MeetingDetailPage: React.FC = () => {
           <p style={{ color: '#666' }}>Name: {meetingDetails?.coordinator.name}</p>
           <p style={{ color: '#666' }}>Email: {meetingDetails?.coordinator.email}</p>
         </div>
-        
+
+        <div>
+          {meetingDetails?.availabilities.map((availability, index) => (
+            <div key={availability._id}>
+              {availability.participant.name}
+            </div>
+          ))}
+        </div>
+
         <div style={{ marginBottom: '40px' }}>
           <button
             onClick={() => setIsEditMode(true)}

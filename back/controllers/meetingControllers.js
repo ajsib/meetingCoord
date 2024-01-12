@@ -34,6 +34,7 @@ exports.createMeeting = async (req, res) => {
 exports.getMeeting = async (req, res) => {
   try {
     const { link } = req.params;
+    console.log(link);
     const meeting = await Meeting.findOne({ link }).populate('availabilities');
     if (!meeting) {
       return res.status(404).json({ message: "Meeting not found" });
