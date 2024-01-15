@@ -1,12 +1,60 @@
 // ./utils/generateColor.js
 
 const generateColor = (index) => {
-    const colors = ["#333333", "#FF5733", "#33FF57", "#3333FF", "#FF33E9", "#33FFFF", "#FFD733", "#9A33FF", "#33FFDA", "#FF336E",
-    "#555555", "#FF855E", "#55FF85", "#5555FF", "#FF66FF", "#55FFFF", "#FFE07C", "#AE55FF", "#77FFC4", "#FF69B4",
-    "#777777", "#FFAB86", "#77FFAB", "#7777FF", "#FF9CFF", "#77FFFF", "#FFEF9E", "#D080FF", "#AAFFDA", "#FF90CC",
-    "#999999", "#FFCBB2", "#99FFCB", "#9999FF", "#FFC6FF", "#99FFFF", "#FFF4B8", "#E0A3FF", "#C4FFE7", "#FFB5E0",
-    "#BBBBBB", "#FFE4D9", "#BBFFEF", "#BBBBFF", "#FFE9FF", "#BBFFFF", "#FFFCE1", "#F2C7FF", "#D8FFEF", "#FFD7EC"];
+  const colors = [
+    "#FF4222",
+    "#1E1E99",
+    "#FF27C5",
+    "#29D4FF",
+    "#FFBB22",
+    "#8522D9",
+    "#22D9BB",
+    "#FF214D",
+    "#444444",
+    "#FF7C55",
+    "#44FF77",
+    "#4444CC",
+    "#FF55FF",
+    "#44DDDD",
+    "#FFCE66",
+    "#9E44FF",
+    "#66FFBB",
+    "#FF4D99",
+    "#666666",
+    "#FF8C66",
+    "#66FF8C",
+    "#6666CC",
+    "#FF77FF",
+    "#66EEEE",
+    "#FFD55C",
+    "#B05DFF",
+    "#88FFC4",
+    "#FF61A9",
+    "#888888",
+    "#FFB39D",
+    "#88FFB3",
+    "#8888CC",
+    "#FFA3FF",
+    "#88FFFF",
+    "#FFE68C",
+    "#C37FFF",
+    "#A2FFD7",
+    "#FF97D8",
+    "#999999",
+    "#FFD0B9",
+    "#99FFD0",
+    "#9999CC",
+    "#FFC1FF",
+    "#99DDDD",
+    "#FFE3A6",
+    "#DA82FF",
+    "#B6FFEA",
+    "#FFA4D7"
+  ];
+  
     return colors[index % colors.length];
   }
+
+ 
   
   export default generateColor;
