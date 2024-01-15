@@ -10,7 +10,7 @@ import fetchMeetingDetails from '../../components/meeting/api/fetchMeetingDetail
 import { handleSlotSelect, goToNext, goToPrev } from '../../components/meeting/utils/calendarActions';
 import { handleInputChange, handleSubmit, handleCancel } from '../../components/meeting/utils/formHandlers';
 import LoadingAndError from '../../components/meeting/utils/LoadingAndError';
-
+import Tooltip from '../../components/meeting/ToolTip';
 
 const MeetingDetailPage: React.FC = () => {
   const [meetingDetails, setMeetingDetails] = useState<MeetingDetails | null>(null);
@@ -28,9 +28,8 @@ const MeetingDetailPage: React.FC = () => {
   const [selectionStart, setSelectionStart] = useState(null);
   const [selectionEnd, setSelectionEnd] = useState(null);
   // menu states
-  const [showMenu, setShowMenu] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [tooltipEvent, setTooltipEvent] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   // handlers
   const slotSelectHandler = handleSlotSelect(
     isEditMode, 
@@ -83,15 +82,38 @@ const MeetingDetailPage: React.FC = () => {
     end: meetingDetails.proposedTimes[meetingDetails.proposedTimes.length - 1].end
   } : null;
 
-  const handleEventMouseEnter = (mouseEnterInfo: { jsEvent: { clientX: any; clientY: any; }; event: React.SetStateAction<null>; }) => {
-    setShowMenu(true);
-    setMenuPosition({ x: mouseEnterInfo.jsEvent.clientX, y: mouseEnterInfo.jsEvent.clientY });
-    setSelectedEvent(mouseEnterInfo.event);
+  const handleEventMouseEnter = (mouseEnterInfo: any) => {
+    const eventElement = mouseEnterInfo.el;
+    const tooltipWidth = 200; // Approximate width of your tooltip
+    const tooltipHeight = 100; // Approximate height of your tooltip
+
+    const rect = eventElement.getBoundingClientRect();
+    let posX = rect.left + window.scrollX;
+    let posY = rect.top + window.scrollY - tooltipHeight; // Position above the event
+    // position middle of the event
+    // let posY = rect.top + window.scrollY - tooltipHeight/2 + rect.height/2;
+
+    // Adjust for right edge
+    if (posX + tooltipWidth > window.innerWidth) {
+      posX -= (posX + tooltipWidth - window.innerWidth);
+    }
+
+    // Adjust for left edge
+    if (posX < 0) {
+      posX = rect.right + window.scrollX; // Position to the right of the event
+    }
+
+    // Adjust for top edge
+    if (posY < 0) {
+      posY = rect.bottom + window.scrollY; // Position below the event
+    }
+
+    setTooltipEvent(mouseEnterInfo.event);
+    setTooltipPosition({ x: posX, y: posY });
   };
 
   const handleEventMouseLeave = () => {
-    setShowMenu(false);
-    setSelectedEvent(null);
+    setTooltipEvent(null);
   };
 
   return (
@@ -234,6 +256,9 @@ const MeetingDetailPage: React.FC = () => {
             <h2 style={{ fontSize: '2rem', color: '#333', textAlign: 'center', marginBottom: '10px' }}>
             {new Date(validRange.start).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
             </h2>
+            {!isEditMode && (
+              <Tooltip event={tooltipEvent} position={tooltipPosition} />
+            )}           
             <FullCalendar
             ref={calendarRef}
             plugins={[timeGridPlugin, interactionPlugin]}
@@ -249,12 +274,16 @@ const MeetingDetailPage: React.FC = () => {
             events={isEditMode ? [...userAvailability, ...(tempEvent ? [tempEvent] : [])] : allAvailabilities}            
             validRange={validRange}
             expandRows={true}
+            // editable={isEditMode ? true : false}
+            editable={false}
             visibleRange={validRange}
             dayHeaderFormat={{
               weekday: 'short',
               day: 'numeric',   
             }}
             slotLabelFormat={{ hour: '2-digit', minute: '2-digit' }}
+            eventMouseEnter={handleEventMouseEnter}
+            eventMouseLeave={handleEventMouseLeave}
           />
           </>
         )}

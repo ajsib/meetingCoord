@@ -5,12 +5,18 @@ const LandingPage = () => {
   const [meetingID, setMeetingID] = useState('');
   const [isDesktop, setIsDesktop] = useState(false);
 
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMeetingID(event.target.value);
   };
 
   const handleView = () => {
-    window.location.href = '/meeting/';
+    if (meetingID) {
+      window.location.href = `/meeting/${meetingID}`;
+    } else {
+      // Optional: Handle the case where meetingID is not entered
+      console.log('Please enter a Meeting ID');
+    }
   };
 
   const handleCreateMeeting = () => {
