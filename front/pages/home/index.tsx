@@ -52,16 +52,16 @@ const HomePage = () => {
           </button>
         </div>
 
-        {/* Testimonials (Placeholder Content) */}
+        {/* Testimonials (Placeholder Content)
         <div style={{ marginBottom: '40px' }}>
           <h2 style={{ fontSize: '2rem', color: '#333', marginBottom: '10px' }}>What Our Users Say</h2>
           <p style={{ color: '#666' }}>&quot;MeetingCoord has simplified our scheduling process significantly. Highly recommend!&quot; - Alex</p>
           <p style={{ color: '#666' }}>&quot;The best tool for coordinating meeting times across different time zones.&quot; - Sam</p>
-        </div>
+        </div> */}
 
         {/* Footer */}
-        <footer style={{ backgroundColor: '#f5f5f5', padding: '20px', textAlign: 'center' }}>
-          <p style={{ color: '#666' }}>Aidan Sibley 2024 - MeetingCoord</p>
+        <footer style={{ padding: '20px', textAlign: 'center' }}>
+          <p style={{ color: '#666' }}>Created with ❤️ by <a href="https://aidan.ajsibley.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: '#333' }}>Aidan Sibley</a> </p>
         </footer>
 
       </div>

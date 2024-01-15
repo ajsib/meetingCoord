@@ -93,7 +93,7 @@ const LandingPage = () => {
 
         {/* Footer */}
         <footer style={{ padding: '20px', textAlign: 'center' }}>
-          <p style={{ color: '#666' }}>Aidan Sibley 2024 - MeetingCoord</p>
+          <p style={{ color: '#666' }}>Created with ❤️ by <a href="https://aidan.ajsibley.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: '#333' }}>Aidan Sibley</a> </p>
         </footer>
 
       </div>

@@ -3,45 +3,13 @@ import { useRouter } from 'next/router';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-
-interface Participant {
-  name: string;
-  email: string;
-}
-
-interface Availability {
-  _id: string;
-  meeting: string;
-  participant: Participant;
-  availableTimes: Array<{
-    start: string;
-    end: string;
-    _id: string;
-  }>;
-  createdAt: string;
-}
-
-interface UserAvailabilityEvent {
-  title: string;
-  start: Date | string;
-  end: Date | string;
-  color: string;
-}
-
-interface MeetingDetails {
-  _id: string;
-  link: string;
-  coordinator: Participant;
-  meetingName: string;
-  description: string;
-  proposedTimes: Array<{
-    start: string;
-    end: string;
-    _id: string;
-  }>;
-  availabilities: Array<Availability>;
-  createdAt: string;
-}
+import { submitAvailability } from '../../components/meeting/api/submitAvailability';
+import { UserAvailabilityEvent, MeetingDetails } from '../../components/meeting/MeetingTypes';
+import processAvailabilities from '../../components/meeting/utils/processAvailabilities';
+import fetchMeetingDetails from '../../components/meeting/api/fetchMeetingDetails';
+import { handleSlotSelect, goToNext, goToPrev } from '../../components/meeting/utils/calendarActions';
+import { handleInputChange, handleSubmit, handleCancel } from '../../components/meeting/utils/formHandlers';
+import LoadingAndError from '../../components/meeting/utils/LoadingAndError';
 
 
 const MeetingDetailPage: React.FC = () => {
@@ -51,126 +19,63 @@ const MeetingDetailPage: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [userDetails, setUserDetails] = useState<{ name: string; email: string }>({ name: '', email: '' });
   const [userAvailability, setUserAvailability] = useState<UserAvailabilityEvent[]>([]);
-  const [tempStart, setTempStart] = useState<string | null>(null);
+  const [allAvailabilities, setAllAvailabilities] = useState<UserAvailabilityEvent[]>([]);
+  const [tempEvent, setTempEvent] = useState(null);
   const calendarRef = useRef<FullCalendar>(null);
   const router = useRouter();
   const { meetingID } = router.query;
-
-  // Handler for selecting time slots on the calendar
-  const handleSlotSelect = (selectInfo: { startStr: any; endStr: any; view: { calendar: any; }; }) => {
-    if (!isEditMode) return; // Allow selection only in edit mode
-
-    const newEvent = {
-      title: 'Your Availability',
-      start: selectInfo.startStr,
-      end: selectInfo.endStr,
-      color: '#666' // Customize the color for user-selected events
-    };
-
-    setUserAvailability([...userAvailability, newEvent]);
-    // Optionally, you can close the selection after adding it
-    let calendarApi = selectInfo.view.calendar;
-    calendarApi.unselect(); // Clear date selection
-  };
-
-  const processAvailabilities = (availabilities: any[]) => {
-    return availabilities.map((availability: { availableTimes: any[]; participant: { name: any; }; }, index: any) => {
-      return availability.availableTimes.map((timeSlot: { start: string | number | Date; end: string | number | Date; }) => ({
-        title: availability.participant.name,
-        start: new Date(timeSlot.start).toISOString(),
-        end: new Date(timeSlot.end).toISOString(),
-        color: generateColor(index), // Function to generate a unique color
-      }));
-    }).flat();
-  };
-  
-  const generateColor = (index: number) => {
-    // Simple function to generate a unique color for each team member
-    const colors = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
-        '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
-        '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A', 
-        '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
-        '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC', 
-        '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
-        '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680', 
-        '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
-        '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3', 
-        '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
-    return colors[index % colors.length];
-  }
+  // cell selection states
+  const [selectionStart, setSelectionStart] = useState(null);
+  const [selectionEnd, setSelectionEnd] = useState(null);
+  // menu states
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  // handlers
+  const slotSelectHandler = handleSlotSelect(
+    isEditMode, 
+    selectionStart, setSelectionStart, 
+    selectionEnd, setSelectionEnd, 
+    userAvailability, setUserAvailability,
+    setTempEvent
+  );
+  const formSubmitHandler = handleSubmit(
+    meetingID, userDetails,
+    userAvailability, allAvailabilities, 
+    setIsEditMode, setUserAvailability, 
+    setAllAvailabilities, submitAvailability
+  );
+  const inputChangeHandler = handleInputChange(userDetails, setUserDetails);
+  const cancelHandler = handleCancel(setIsEditMode, setUserAvailability);
+  const nextHandler = goToNext(calendarRef);
+  const prevHandler = goToPrev(calendarRef);
 
   useEffect(() => {
-    if (meetingID && typeof meetingID === 'string') {
-      fetch(`https://set-a-meet-0e5fe70129fc.herokuapp.com/api/meetings/${meetingID}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchMeetingDetails(meetingID);
+        if (data) {
           setMeetingDetails(data);
-          const processedAvailabilities = processAvailabilities(data.availabilities);
-          setUserAvailability(processedAvailabilities); 
-          setLoading(false);
-        })
-        .catch(error => {
-          setError(error.message);
-          setLoading(false);
-        });
+          const processed = processAvailabilities(data.availabilities);
+          setAllAvailabilities(processed);
+        }
+      } catch (error: any) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (meetingID) {
+      loadData();
     }
   }, [meetingID]);
 
-  const handleInputChange = (event: { target: { name: any; value: any; }; }) => {
-    setUserDetails({
-      ...userDetails,
-      [event.target.name]: event.target.value
-    });
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!meetingID || typeof meetingID !== 'string') return;
-  
-    // Prepare availability data
-    const availabilityData = {
-      participant: {
-        name: userDetails.name,
-        email: userDetails.email
-      },
-      availableTimes: userAvailability.map(avail => ({
-        start: new Date(avail.start).toISOString(),
-        end: new Date(avail.end).toISOString()
-      }))
-    };
-  
-    try {
-      const response = await fetch(`https://set-a-meet-0e5fe70129fc.herokuapp.com/api/availabilities/${meetingID}/availability`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(availabilityData),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Error submitting availability: ${response.status}`);
-      }
-  
-      const result = await response.json();
-      console.log('Availability submitted:', result);
-  
-      // Reset states and exit edit mode after successful submission
-      setIsEditMode(false);
-      setUserAvailability([]);
-  
-    } catch (error) {
-      console.error('Error submitting availability:', error);
-    }
-  };
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  // Render logic
+  if (loading || error) {
+    return <LoadingAndError loading={loading} error={error} />;
+  }
 
   // Determine the valid date range for the calendar
   const validRange = meetingDetails?.proposedTimes.length ? {
@@ -178,16 +83,15 @@ const MeetingDetailPage: React.FC = () => {
     end: meetingDetails.proposedTimes[meetingDetails.proposedTimes.length - 1].end
   } : null;
 
-  const goToNext = () => {
-    if (calendarRef.current) {
-      calendarRef.current.getApi().next();
-    }
+  const handleEventMouseEnter = (mouseEnterInfo: { jsEvent: { clientX: any; clientY: any; }; event: React.SetStateAction<null>; }) => {
+    setShowMenu(true);
+    setMenuPosition({ x: mouseEnterInfo.jsEvent.clientX, y: mouseEnterInfo.jsEvent.clientY });
+    setSelectedEvent(mouseEnterInfo.event);
   };
 
-  const goToPrev = () => {
-    if (calendarRef.current) {
-      calendarRef.current.getApi().prev();
-    }
+  const handleEventMouseLeave = () => {
+    setShowMenu(false);
+    setSelectedEvent(null);
   };
 
   return (
@@ -198,18 +102,25 @@ const MeetingDetailPage: React.FC = () => {
           <p style={{ fontSize: '1.2rem', color: '#666' }}>{meetingDetails?.description}</p>
         </div>
   
-        <div style={{ marginBottom: '40px' }}>
-          <h2 style={{ fontSize: '2rem', color: '#333', marginBottom: '10px' }}>Coordinator Details</h2>
-          <p style={{ color: '#666' }}>Name: {meetingDetails?.coordinator.name}</p>
-          <p style={{ color: '#666' }}>Email: {meetingDetails?.coordinator.email}</p>
-        </div>
-
-        <div>
-          {meetingDetails?.availabilities.map((availability, index) => (
-            <div key={availability._id}>
-              {availability.participant.name}
-            </div>
-          ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '40px' }}>
+          <div style={{ flex: 1, marginRight: '20px' }}>
+            <h2 style={{ fontSize: '2rem', color: '#333', marginBottom: '10px', textAlign: 'left' }}>Coordinator Details</h2>
+            <p style={{ color: '#666', textAlign: 'left' }}>Name: {meetingDetails?.coordinator.name}</p>
+            <p style={{ color: '#666', textAlign: 'left' }}>Email: {meetingDetails?.coordinator.email}</p>
+          </div>
+          <div style={{ flex: 1, marginLeft: '20px' }}>
+            <h2 style={{ fontSize: '2rem', color: '#333', marginBottom: '10px', textAlign: 'right' }}>Participants</h2>
+            {meetingDetails?.availabilities.map((availability, index) => (
+              <div key={availability._id} style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <div style={{ marginRight: '20px', color: '#666', textAlign: 'right', flex: 1 }}>
+                  {availability.participant.name}
+                </div>
+                <div style={{ textAlign: 'right', color:'#666', flex: 1 }}>
+                  {availability.participant.email}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div style={{ marginBottom: '40px' }}>
@@ -232,13 +143,13 @@ const MeetingDetailPage: React.FC = () => {
         </div>
 
         {isEditMode && (
-          <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+          <form onSubmit={formSubmitHandler} style={{ marginBottom: '20px' }}>
             <div style={{ marginBottom: '10px' }}>
               <input
                 type="text"
                 name="name"
                 value={userDetails.name}
-                onChange={handleInputChange}
+                onChange={inputChangeHandler}
                 placeholder="Your Name"
                 style={{ width: '100%', padding: '10px', marginBottom: '10px', fontSize: '1rem' }}
               />
@@ -246,7 +157,7 @@ const MeetingDetailPage: React.FC = () => {
                 type="email"
                 name="email"
                 value={userDetails.email}
-                onChange={handleInputChange}
+                onChange={inputChangeHandler}
                 placeholder="Your Email"
                 style={{ width: '100%', padding: '10px', marginBottom: '10px', fontSize: '1rem' }}
               />
@@ -266,6 +177,22 @@ const MeetingDetailPage: React.FC = () => {
             >
               Submit Availability
             </button>
+            <button
+              type="button" // This should be 'button' to prevent form submission
+              onClick={cancelHandler}
+              style={{
+                padding: '10px 20px',
+                fontSize: '1rem',
+                marginLeft: '10px', // Add some margin between buttons
+                backgroundColor: '#999', // Different color to distinguish from submit button
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
           </form>
         )}
   
@@ -282,7 +209,7 @@ const MeetingDetailPage: React.FC = () => {
               cursor: 'pointer',
               margin: '10px',
             }}
-            onClick={goToPrev}
+            onClick={prevHandler}
           >
             Previous Week
           </button>
@@ -297,7 +224,7 @@ const MeetingDetailPage: React.FC = () => {
               cursor: 'pointer',
               margin: '10px',
             }}
-            onClick={goToNext}
+            onClick={nextHandler}
           >
             Next Week
           </button>
@@ -311,15 +238,15 @@ const MeetingDetailPage: React.FC = () => {
             ref={calendarRef}
             plugins={[timeGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
-            headerToolbar={false} 
+            headerToolbar={false}       
             allDaySlot={false}
             slotMinTime="08:00:00"
-            slotMaxTime="18:00:00"
+            slotMaxTime="23:30:00"
             height="auto"
             weekends={true}
-            selectable={isEditMode} // Enable selection in edit mode
-            select={handleSlotSelect} // Add the handler for slot selection
-            events={userAvailability} // Render only user-selected availability events
+            selectable={isEditMode} 
+            select={slotSelectHandler}
+            events={isEditMode ? [...userAvailability, ...(tempEvent ? [tempEvent] : [])] : allAvailabilities}            
             validRange={validRange}
             expandRows={true}
             visibleRange={validRange}
@@ -332,6 +259,9 @@ const MeetingDetailPage: React.FC = () => {
           </>
         )}
       </div>
+      <footer style={{ padding: '20px', textAlign: 'center' }}>
+          <p style={{ color: '#666' }}>Created with ❤️ by <a href="https://aidan.ajsibley.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: '#333' }}>Aidan Sibley</a> </p>
+      </footer>
     </>
   );
 };
