@@ -136,7 +136,8 @@ const Header = () => {
 
   return (
     <header style={headerStyle}>
-      <div style={logoStyle}>MeetingCoord</div>
+      <div style={logoStyle}>MeetingCard</div>
+      {/* "by Aidan" written super small text below using  */}
       <nav>
         <ul style={navStyle}>
           <li><StyledLink href="/">Meetings</StyledLink></li>
