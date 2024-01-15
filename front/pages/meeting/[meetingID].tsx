@@ -175,7 +175,7 @@ const MeetingDetailPage: React.FC = () => {
                 cursor: 'pointer',
               }}
             >
-              Submit Availability
+              Submit
             </button>
             <button
               type="button" // This should be 'button' to prevent form submission
@@ -184,7 +184,7 @@ const MeetingDetailPage: React.FC = () => {
                 padding: '10px 20px',
                 fontSize: '1rem',
                 marginLeft: '10px', // Add some margin between buttons
-                backgroundColor: '#999', // Different color to distinguish from submit button
+                backgroundColor: '#7a8387', // Different color to distinguish from submit button
                 color: 'white',
                 border: 'none',
                 borderRadius: '5px',
