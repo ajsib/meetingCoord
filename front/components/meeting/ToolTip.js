@@ -1,5 +1,6 @@
 const Tooltip = ({ event, position, isEdit, userAvail, setUserAvailability }) => {
   if (!event) return null;
+  if (isEdit) return null;
     return (
       <div style={{
           position: 'absolute',
@@ -20,7 +21,7 @@ const Tooltip = ({ event, position, isEdit, userAvail, setUserAvailability }) =>
       }}>
           <strong>{event.name}</strong>
 
-          {!isEditMode & <div>{event.start.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })} - {event.end.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</div>}
+          {<div>{event.start.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })} - {event.end.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</div>}
       </div>
   );
 };
