@@ -98,9 +98,9 @@ const LandingPage = () => {
         </div>
 
         {/* Footer */}
-        <footer style={{ padding: '20px', textAlign: 'center' }}>
+        {/* <footer style={{ padding: '20px', textAlign: 'center' }}>
           <p style={{ color: '#666' }}>Created with ❤️ by <a href="https://aidan.ajsibley.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: '#333' }}>Aidan Sibley</a> </p>
-        </footer>
+        </footer> */}
 
       </div>
     </>
