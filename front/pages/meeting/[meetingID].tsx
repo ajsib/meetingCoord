@@ -307,7 +307,7 @@ if (validRange) {
                     <label style={{ display: 'block', marginBottom: '5px', color: '#333', fontSize: '1rem' }}>Start Time:</label>
                     <select name="startTime" required style={{ width: '100%', padding: '10px', fontSize: '1rem', border: '1px solid #ccc', borderRadius: '4px' }}>
                       {timeSlots.map((time) => (
-                        <option value={time}>{time}</option>
+                        <option key={time} value={time}>{time}</option>
                       ))}
                     </select>
                   </div>
@@ -316,7 +316,7 @@ if (validRange) {
                     <label style={{ display: 'block', marginBottom: '5px', color: '#333', fontSize: '1rem' }}>End Time:</label>
                     <select name="endTime" required style={{ width: '100%', padding: '10px', fontSize: '1rem', border: '1px solid #ccc', borderRadius: '4px' }}>
                       {timeSlots.map((time) => (
-                        <option value={time}>{time}</option>
+                        <option key={time} value={time}>{time}</option>
                       ))}
                     </select>
                   </div>
