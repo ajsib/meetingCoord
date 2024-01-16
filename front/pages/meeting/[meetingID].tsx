@@ -148,7 +148,7 @@ const MeetingDetailPage: React.FC = () => {
     const { date, startTime, endTime } = event.target.elements;
     
     const newAvailability = {
-      name: 'Available',
+      title: 'Available',
       start: new Date(`${date.value}T${startTime.value}`),
       end: new Date(`${date.value}T${endTime.value}`),
       color: 'green',

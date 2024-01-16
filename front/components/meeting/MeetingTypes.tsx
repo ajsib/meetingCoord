@@ -16,7 +16,7 @@ interface Participant {
   }
   
   interface UserAvailabilityEvent {
-    name: string;
+    title: string;
     start: Date | string;
     end: Date | string;
     color: string;

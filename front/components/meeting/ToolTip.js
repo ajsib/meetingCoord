@@ -19,8 +19,7 @@ const Tooltip = ({ event, position, isEdit, userAvail, setUserAvailability }) =>
           textAlign: 'center',
           lineHeight: '1.4'
       }}>
-          <strong>{event.name}</strong>
-
+          <strong>{event.title}</strong>
           {<div>{event.start.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })} - {event.end.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}</div>}
       </div>
   );
