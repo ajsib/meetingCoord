@@ -1,109 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
+import React from 'react';
+import { useRouter } from 'next/router';
 
 const LandingPage = () => {
-  const [meetingID, setMeetingID] = useState('');
-  const [isDesktop, setIsDesktop] = useState(false);
+  const router = useRouter();
 
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMeetingID(event.target.value);
+  const handleCoordinate = () => {
+    router.push('/create');
   };
 
-  const handleView = () => {
-    if (meetingID) {
-      window.location.href = `/meeting/${meetingID}`;
-    } else {
-      // Optional: Handle the case where meetingID is not entered
-      console.log('Please enter a Meeting ID');
-    }
+  const containerStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: '6rem'
   };
 
-  const handleCreateMeeting = () => {
-    console.log('Creating a new meeting');
-    window.location.href = '/create/';
+  const titleStyle: React.CSSProperties = {
+    fontSize: '2.5rem', // Adjust size as needed
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: '4rem', 
   };
 
-  useEffect(() => {
-    // Update isDesktop based on the window's width when the component mounts
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth > 768);
-    };
-
-    // Set initial value
-    handleResize();
-
-    // Add event listener for future window resize
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup function to remove the event listener
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const buttonStyle = {
-    padding: '10px 20px',
+  const inputStyle: React.CSSProperties = {
     fontSize: '1rem',
-    color: 'white',
-    backgroundColor: '#333',
-    border: 'none',
+    color: 'var(--secondary-color)',
+    fontWeight: '600',
+    border: '1px solid #666',
+    backgroundColor: 'var(--primary-color)',
     borderRadius: '5px',
-    cursor: 'pointer',
+    padding: '0.7rem',
+    marginRight: '1rem',
   };
 
-  const inputStyle = {
-    padding: '10px',
-    marginRight: isDesktop ? '10px' : '0',
-    marginBottom: isDesktop ? '0' : '10px',
+  const orStyle: React.CSSProperties = {
     fontSize: '1rem',
-    width: isDesktop ? 'auto' : '100%',
+    color: 'var(--secondary-color)',
+    fontWeight: '600',
+    padding: '1rem',
+    marginBottom: '1.5rem'
   };
 
   return (
-    <>
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-
-        {/* Join Meeting Section */}
-        <div style={{ marginBottom: '40px' }}>
-          <h2 style={{ fontSize: '2rem', color: '#333', marginBottom: '10px' }}>View a Meeting</h2>
-          <div style={{ display: isDesktop ? 'flex' : 'block', alignItems: 'center', justifyContent: 'center' }}>
-            <input 
-              type="text" 
-              value={meetingID}
-              onChange={handleInputChange} 
-              placeholder="Enter Meeting ID" 
-              style={inputStyle} 
-            />
-            <button 
-              onClick={handleView} 
-              style={buttonStyle}
-            >
-              View Meeting
-            </button>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div style={{ marginBottom: '40px' }}>
-          <span style={{ color: '#666', fontSize: '1.5rem' }}>OR</span>
-        </div>
-
-        {/* Create Meeting Section */}
-        <div>
-          <button 
-            onClick={handleCreateMeeting} 
-            style={buttonStyle}
-          >
-            Coordinate a Meeting
-          </button>
-        </div>
-
-        {/* Footer */}
-        {/* <footer style={{ padding: '20px', textAlign: 'center' }}>
-          <p style={{ color: '#666' }}>Created with ❤️ by <a href="https://aidan.ajsibley.com" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: '#333' }}>Aidan Sibley</a> </p>
-        </footer> */}
-
+    <div style={containerStyle}>
+      <h1 style={titleStyle}>Ready to Make Meetings Easier?</h1>
+      {/* <div style={{marginBottom: '1.5rem'}}>
+        <input style={inputStyle} placeholder="Meeting Name" />
+        <button style={buttonStyle}>Search by Name</button>
       </div>
-    </>
+      <p style={orStyle}>OR</p> */}
+      <button className="button" onClick={handleCoordinate}>Coordinate a Meeting</button>
+    </div>
   );
 };
 

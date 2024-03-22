@@ -1,0 +1,8 @@
+.fadeInContainer {
+    transition: opacity 0.5s ease; /* Smooth transition for opacity */
+    opacity: 0; /* Initially invisible */
+  }
+  
+  .fadeInContainer.show {
+    opacity: 1; /* Fade in when the component is rendered */
+  } 

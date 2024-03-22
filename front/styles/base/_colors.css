@@ -1,0 +1,21 @@
+/* styles/base/_colors.css */
+
+:root {
+    --primary-color: #FFFFFF;
+    --secondary-color: #333;
+    --accent-color: #444444;
+    --text-primary: #444444;
+    --text-secondary: #FFFFFF;
+    --background-default: #FFFFFF;
+    --background-alternate: #FBFBFB;
+    
+    --c-theme-primary: #008FFD;
+    --c-theme-primary-accent: #CBE8FF;
+    --c-bg-primary: #D6DAE0;
+    --c-bg-secondary: #EAEBEC;
+    --c-bg-secondary-hover: #dadbdc;
+    --c-bg-tertiary: #FDFDFD;
+    --c-text-primary: #1F1F25;
+    --c-text-secondary: #999FA6;
+
+  }

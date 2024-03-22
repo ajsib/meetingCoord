@@ -1,27 +1,34 @@
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
-    Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  line-height: 1.6;
-  font-size: 18px;
-}
+/* styles/globals.css */
 
-* {
-  box-sizing: border-box;
+@import './base/_reset.css';
+@import './base/_typography.css';
+@import './base/_colors.css';
+@import './components/buttonStyles.css'; 
+@import './components/inputStyles.css'; 
+
+body {
+  background-color: var(--background-default);
+  color: var(--text-primary);
 }
 
 a {
-  color: #006df3;
-  text-decoration: none;
+  color: var(--primary-color);
 }
 
-a:hover {
-  text-decoration: underline;
+:root {
+  /* Define the default margin */
+  --margin: calc(10vw);
 }
 
-img {
-  max-width: 100%;
-  display: block;
+/* Adjust the margin based on viewport width */
+@media (max-width: 1500px) {
+  :root {
+    --margin: calc(5vw);
+  }
+}
+
+@media (max-width: 800px) {
+  :root {
+    --margin: calc(3vw);
+  }
 }

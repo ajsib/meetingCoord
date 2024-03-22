@@ -1,0 +1,35 @@
+/* styles/base/_typography.css */
+
+@import './_fonts.css';
+
+html, body {
+  font-family: 'Open Sans', sans-serif; 
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+h1 {
+  font-weight: 700; /* Bold */
+  font-size: 2rem;
+  font-family: 'Open Sans', sans-serif; 
+}
+
+h2 {
+  font-weight: 700; /* Bold */
+  font-size: 1.75rem;
+  font-family: 'Open Sans', sans-serif; 
+}
+
+strong, b {
+  font-weight: 700; /* Bold */
+}
+
+em, i {
+  font-style: italic;
+}
+
+.caption, .figcaption {
+  font-family: 'Clear Sans', sans-serif; 
+  font-size: 0.75rem;
+}

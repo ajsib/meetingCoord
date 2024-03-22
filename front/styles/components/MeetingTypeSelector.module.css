@@ -1,0 +1,94 @@
+/* MeetingTypeSelector.module.css */
+.selectorContainer {
+    text-align: center;
+    transition: all 0.5s ease;
+    /* padding-bottom: 4rem; */
+}
+
+/* Existing styles */
+.typeOptions {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 0 2rem 4rem;
+  }
+  
+  /* New styles for a responsive design */
+  @media (max-width: 600px) {
+    .typeOptions {
+      flex-direction: column;
+      align-items: center; /* Aligns items to the center when stacked in a column */
+    }
+  }
+
+.option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 10rem;
+    height: 100px;
+    background-color: #fff; /* Default background */
+    border: 2px solid transparent; /* Prepare for selection effect */
+}
+
+.option:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.selected {
+    /* background-color: #007bff; Accent color for a selected option */
+    border: 2px solid #666; /* var(--secondary-color); */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* More prominent shadow for selected state */
+}
+
+.icon {
+    font-size: 3rem;
+}
+
+.label {
+    margin-top: 2rem;
+    font-size: 1rem;
+    color: #a2a2a2; /* Darker text color for contrast */
+    font-weight: 800;
+}
+
+
+.withText {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 500;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    padding-bottom:3rem;
+  }
+  
+  .orText {
+    font-size: 1.5rem;
+    color: #bbbbbb; /* Subtle color for a soft look */
+    font-weight: 600;
+    align-self: center;
+  }
+
+  .button {
+    padding: 10px 20px;
+    margin-top: 20px; /* Adjust spacing as per your design */
+    background-color: #007bff; /* Luxurious blue */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+  }
